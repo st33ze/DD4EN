@@ -1,0 +1,33 @@
+# Comunication module responsible for getting data from webpage and 
+# sending processed data to the discord channel
+from dotenv import dotenv_values
+import aiohttp
+import asyncio
+
+CONFIG = dotenv_values('.env')
+
+async def send_request(session, url):
+  try:
+    async with session.get(url) as response:
+      assert response.status == 200
+      json_data = await response.json()
+      return json_data
+  except AssertionError as e: print(f'Assertion Error occured. {e}')
+  except Exception as e: print(f'Request exception occured: {e}')
+
+async def get_data():
+  ''' 
+    Sends max 5 requests, time between each request doubles.
+    Returns: data or None 
+  '''
+  tries = 5
+  time_stamp = 30
+  session = aiohttp.ClientSession()
+  while tries > 0:
+    tries -= 1
+    data = await send_request(session, CONFIG['URL'])
+    if not data and tries > 1: 
+      await asyncio.sleep(time_stamp) 
+      time_stamp *= 2
+  await session.close()
+  return data
