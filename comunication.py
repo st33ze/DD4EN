@@ -10,8 +10,7 @@ async def send_request(session, url):
   try:
     async with session.get(url) as response:
       assert response.status == 200
-      json_data = await response.json()
-      return json_data
+      return await response.json()
   except AssertionError as e: print(f'Assertion Error occured. {e}')
   except Exception as e: print(f'Request exception occured: {e}')
 

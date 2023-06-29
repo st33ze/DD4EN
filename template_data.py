@@ -23,3 +23,5 @@ d4armory_data = {
     'zone': 'Fractured Peaks'
     }
 }
+
+d4armory_data = {"boss":{"name":"Ashava","expectedName":"Ashava","nextExpectedName":"The Wandering Death","timestamp":1688034718,"expected":1688063131,"nextExpected":1688082644,"territory":"Seared Basin","zone":"Kehjistan"},"helltide":{"timestamp":1688032800,"zone":"kehj","refresh":0},"legion":{"timestamp":1688035007,"territory":"Temple of Rot","zone":"Dry Steppes"}}
