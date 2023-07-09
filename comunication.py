@@ -1,6 +1,7 @@
 # Comunication module responsible for getting data from webpage and 
 # sending processed data to the discord channel
 from dotenv import dotenv_values
+from discord import Webhook
 import aiohttp
 import asyncio
 
@@ -30,3 +31,13 @@ async def get_data():
       time_stamp *= 2
   await session.close()
   return data
+
+async def post(embed, thumbnail=None):
+  ''' 
+  Sends embed message to discord channel.
+  Returns: Message ID. 
+  '''
+  async with aiohttp.ClientSession() as session:
+    webhook = Webhook.from_url(CONFIG['WEBHOOK_URL'], session=session)
+    message = await webhook.send(file=thumbnail, wait=True, embed=embed)
+    return message.id
