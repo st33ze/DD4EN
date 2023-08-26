@@ -2,7 +2,7 @@
 from discord import Embed, File
 from datetime import datetime, timedelta
 from comunication import get_data, post
-from template_data import d4armory_data
+from templates import d4armory_data
 
 
 class Tasks():
@@ -11,6 +11,9 @@ class Tasks():
     self.running =  set()
   
   def add(self, new):
+    '''
+      If there isn't this type of event in self.assigned adds the event. 
+    '''
     if new in self.assigned: return
     for index, task in enumerate(self.assigned):
       if new.get_time() < task.get_time(): 
@@ -19,6 +22,9 @@ class Tasks():
     self.assigned.append(new)
   
   def get_next(self):
+    '''
+      Returns the first item in self.assigned and removes it from the array.
+    '''
     if self.assigned:
       task = self.assigned[0]
       self.assigned.pop(0)
@@ -53,8 +59,8 @@ class Update(Event):
     self.fails = 0
   
   async def run(self):
-    # data = await get_data()
-    data = d4armory_data
+    data = await get_data()
+    # data = d4armory_data
     # data = None
     if data:
       self.fails = 0 
@@ -66,17 +72,26 @@ class Update(Event):
   def get_seconds_to_start(self):
     return Update.INTERVAL * 3600
 
+
 class Boss(Event):
-  THUMBNAIL = File('img/avarice.jpg', filename='avarice.jpg')
+  THUMBNAIL = File('img/boss.png', filename='boss.png')
   
   def __init__(self):
     super().__init__()
     self.incoming = []
+    self.message_id = None
 
+  def add_event(self, new_event):
+    for index, event in enumerate(self.incoming):
+      if new_event['runtime'] < event['runtime']:
+        self.incoming.insert(index, new_event)
+        return
+    self.incoming.append(new_event)
+  
   def update(self, data):
     try:
       wb_data = data['boss']
-      self.incoming = [
+      events = [
         {
           'name': wb_data['expectedName'],
           'time': datetime.fromtimestamp(wb_data['expected']),
@@ -88,64 +103,94 @@ class Boss(Event):
           'time': datetime.fromtimestamp(wb_data['nextExpected'])
         }
       ]
-    except Exception as e: print(f'Exception during data unpacking: {e}')
+      # Delete old post events if there are any in self.incoming.
+      self.incoming = [event for event in self.incoming if event['type'] != 'post']
+      for event in events:
+        if event['time'] > datetime.now():
+          event['type'] = 'post'
+          # Notify 29 minutes before the event starts.
+          event['runtime'] = event['time'] - timedelta(minutes=29)
+          self.add_event(event)
+    except Exception as e: 
+      # Make error log file??????????????
+      # print(f'Exception during data unpacking: {e}')
+      pass
 
   def get_next(self):
-    for boss in self.incoming:
-      if boss['time'] > datetime.now(): return boss
-
+    if self.incoming: return self.incoming[0]
+  
   def get_time(self):
-    ''' 
-      Returns start time minus 30 minutes to notify.
-    '''
     event = self.get_next()
-    if event: return (event['time'] - timedelta(minutes=30))
+    if event:
+      # If there is no boss post, run post event immediately.
+      if self.message_id == None: return datetime.now()
+      return event['runtime']
 
   def get_seconds_to_start(self):
-    return (self.get_time() - datetime.now()).total_seconds()
-  
+    time = self.get_time()
+    return (time - datetime.now()).total_seconds()
+
   def create_embed(self, event):
     template = {
       'type': 'rich',
       'title': 'WORLD BOSS',
-      'description': f'World boss {event["name"]} is going to appear soon!',
-      'color': 0x1bb14d,
       'fields': [
-      {
+        {
           'name': 'Time',
-          'value': f'<t:{event["time"].timestamp()}:R>',
-          'inline': True
-      }
-      ],
-      'thumbnail': {
-      'url': 'attachment://avarice.jpg',
-      }
-    }
-    if 'zone' in event: 
-      template['fields'] += [
-        {
-          'name': 'Zone',
-          'value': f'{event["zone"]}',
-          'inline': True
-        },
-        {
-          'name': 'Territory',
-          'value': f'{event["territory"]}',
+          'value': f'<t:{int(event["time"].timestamp())}:R>',
           'inline': True
         }
-      ]
-    if all(event['time'] > datetime.now() for event in self.incoming):
-      template['footer'] = {
-        'text': f'''Next boss {self.incoming[1]["name"]} is expected to spawn on\
-                {self.incoming[1]['time'].strftime("%A %H:%M")}'''
-      }
+      ],
+      'thumbnail': {'url': 'attachment://boss.png'}
+    }
+    if event['type'] == 'edit':
+      template['description'] = f'{event["name"]} is expected to spawn.'
+      template['fields'][0]['value'] = f'<t:{int(event["time"].timestamp())}:t>'
+    elif event['type'] == 'post':
+      template['description'] = f'{event["name"]} is going to appear soon!'
+      template['color'] = 0x1bb14d
+      if 'zone' in event: 
+        template['fields'] += [
+          {
+            'name': 'Zone',
+            'value': f'{event["zone"]}',
+            'inline': True
+          },
+          {
+            'name': 'Territory',
+            'value': f'{event["territory"]}',
+            'inline': True
+          }
+        ]
+      # Add footer if there is next expected boss incoming.
+      for inc_event in self.incoming:
+        if inc_event is not event and inc_event['type'] == 'post':
+          template['footer'] = {
+            'text': (
+              f'Next boss {event["name"]} is expected to spawn on '
+              f'{event["time"].strftime("%A %H:%M")}'
+            )
+          }
     return Embed.from_dict(template)
   
-  async def run(self):
+
+  async def run(self, update):
+    # comment
+    # Run updated if time is less than 30 mins????????????
     event = self.get_next()
-    if not event: return
-    embed = self.create_embed(event)
-    message_id = await post(embed, Boss.THUMBNAIL)
+    # If this is initial run, make a post.
+    if self.message_id == None:
+      embed = self.create_embed({
+        'name': event['name'],
+        'time': event['time'],
+        'type': 'edit'
+      })
+      self.message_id = await post(embed, Boss.THUMBNAIL)
+    # Post boss event detailed notification.
+    # elif event['type'] == 'post':
+
+
+
     
 
 

@@ -41,3 +41,12 @@ async def post(embed, thumbnail=None):
     webhook = Webhook.from_url(CONFIG['WEBHOOK_URL'], session=session)
     message = await webhook.send(file=thumbnail, wait=True, embed=embed)
     return message.id
+
+async def delete(message_id):
+  '''
+    Deletes message by message_id from the discord channel.
+  '''
+  async with aiohttp.ClientSession() as session:
+    webhook = Webhook.from_url(CONFIG['WEBHOOK_URL'], session=session)
+    message = await webhook.fetch_message(message_id)
+    await message.delete()

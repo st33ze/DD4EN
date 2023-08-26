@@ -14,8 +14,9 @@ async def main():
   if not tasks.assigned: tasks.add(update)
   task = tasks.get_next()
   await asyncio.sleep(task.get_seconds_to_start())
-  # if task is boss: await update.run() # Website data is updated 30 minutes before boss event.
-  follow_up_task = await task.run()
+  # Boss location is updated 30 minutes before the event.
+  # Runs update before sending detailed boss notification.
+  follow_up_task = await task.run(update) if task is boss else await task.run()
 
 
 
