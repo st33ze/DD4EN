@@ -1,7 +1,7 @@
 # Data process module.
 from discord import Embed, File
 from datetime import datetime, timedelta
-from comunication import get_data, post
+from comunication import get_data, post, delete
 from templates import d4armory_data
 
 
@@ -173,21 +173,49 @@ class Boss(Event):
           }
     return Embed.from_dict(template)
   
-
   async def run(self, update):
-    # comment
-    # Run updated if time is less than 30 mins????????????
+    ''' 
+      Post or edit boss event on discord.
+      Return next boss event if exists.
+    '''
     event = self.get_next()
-    # If this is initial run, make a post.
-    if self.message_id == None:
-      embed = self.create_embed({
-        'name': event['name'],
-        'time': event['time'],
-        'type': 'edit'
-      })
-      self.message_id = await post(embed, Boss.THUMBNAIL)
-    # Post boss event detailed notification.
-    # elif event['type'] == 'post':
+    if not event: return
+    if event['type'] == 'post':
+      if event['time'] - datetime.now() < timedelta(minutes=29):
+        if update.getLastTime() < event['runtime']: 
+          update.run()
+          return self.run(update)
+        if self.message_id:
+          delete(self.message_id)
+          self.message_id = None
+        embed = self.create_embed(event)
+        self.message_id = await post(embed, Boss.THUMBNAIL)
+        self.incoming.pop(0)
+        self.add_event({
+          'type': 'edit',
+          'runtime': datetime.now + timedelta(minutes=30)
+        })
+      elif not self.message_id:
+        # embed = self.create_embed({
+        #   'name': event['name'],
+        #   'time': event['time'],
+        #   'type': 'edit'
+        # })
+        embed = self.create_embed(self.create_edit_event(event))
+        self.message_id = await post(embed, Boss.THUMBNAIL)
+    elif event['type'] == 'edit':
+      self.incoming.pop(0)
+      event = self.get_next()
+      if not event: return
+      embed = self.create_embed(self.create_edit_event())
+      await edit(embed)
+    return self.get_next()
+
+
+
+
+
+        
 
 
 
