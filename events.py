@@ -57,20 +57,25 @@ class Update(Event):
     self.events = events
     self.tasks = tasks
     self.fails = 0
+    self.last_time = None
   
   async def run(self):
     data = await get_data()
     # data = d4armory_data
     # data = None
     if data:
-      self.fails = 0 
+      self.fails = 0
       for event in self.events: 
         event.update(data)
         if event.get_next(): self.tasks.add(event)
     else: self.fails += 1
+    self.last_time = datetime.now()
 
   def get_seconds_to_start(self):
     return Update.INTERVAL * 3600
+  
+  def get_last_time(self):
+    return self.last_time
 
 
 class Boss(Event):
