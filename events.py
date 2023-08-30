@@ -198,7 +198,7 @@ class Boss(Event):
     if not event: return
     if event['type'] == 'post':
       if event['time'] - datetime.now() < timedelta(minutes=29):
-        if update.get_last_time() < event['runtime']: 
+        if update.get_last_time() < event['runtime']: # move this to app.py bcs the func is doing too many things?
           update.run()
           return self.run(update)
         if self.message_id:

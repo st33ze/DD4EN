@@ -96,9 +96,13 @@ class TestBoss(unittest.TestCase):
 class TestBossAsync(unittest.IsolatedAsyncioTestCase):
   def setUp(self):
     self.boss = Boss()
-    TestBoss.restore_incoming(self)
   
+  async def test_run_no_events(self):
+    next_event = await self.boss.run(update=lambda: None)
+    self.assertIsNone(next_event, "There shouldn't be next event.")
   
+  # async def test_run_starting_event_no_message_id(self):
+
 
 class TestCommunicatons(unittest.IsolatedAsyncioTestCase):
   def setUp(self):
