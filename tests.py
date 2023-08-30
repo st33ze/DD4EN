@@ -98,12 +98,7 @@ class TestBossAsync(unittest.IsolatedAsyncioTestCase):
     self.boss = Boss()
     TestBoss.restore_incoming(self)
   
-  @unittest.skip('Skipping test_run')
-  async def test_run(self):
-    update = lambda: None
-    # First post.
-    follow_up_task = await self.boss.run(update=update)
-
+  
 
 class TestCommunicatons(unittest.IsolatedAsyncioTestCase):
   def setUp(self):
