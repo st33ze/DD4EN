@@ -212,11 +212,6 @@ class Boss(Event):
           'runtime': datetime.now + timedelta(minutes=30)
         })
       elif not self.message_id:
-        # embed = self.create_embed({
-        #   'name': event['name'],
-        #   'time': event['time'],
-        #   'type': 'edit'
-        # })
         embed = self.create_embed(self.create_edit_event(event))
         self.message_id = await post(embed, Boss.THUMBNAIL)
     elif event['type'] == 'edit':
