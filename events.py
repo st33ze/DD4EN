@@ -178,6 +178,17 @@ class Boss(Event):
           }
     return Embed.from_dict(template)
   
+  def create_edit_event(self, event):
+    ''' 
+      Get post event and create edit event.
+      Return edit event object.
+    '''
+    return {
+      'name': event['name'],
+      'time': event['time'],
+      'type': 'edit'
+    }
+
   async def run(self, update):
     ''' 
       Post or edit boss event on discord.
