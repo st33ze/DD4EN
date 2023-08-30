@@ -109,7 +109,7 @@ class Boss(Event):
         }
       ]
       # Delete old post events if there are any in self.incoming.
-      self.incoming = [event for event in self.incoming if event['type'] != 'post']
+      self.incoming = [event for event in self.incoming if event['type'] != 'post'] # self.incoming = [] ?
       for event in events:
         if event['time'] > datetime.now():
           event['type'] = 'post'
@@ -189,7 +189,7 @@ class Boss(Event):
       'type': 'edit'
     }
 
-  async def run(self, update):
+  async def run(self):
     ''' 
       Post or edit boss event on discord.
       Return next boss event if exists.
@@ -198,9 +198,6 @@ class Boss(Event):
     if not event: return
     if event['type'] == 'post':
       if event['time'] - datetime.now() < timedelta(minutes=29):
-        if update.get_last_time() < event['runtime']: # move this to app.py bcs the func is doing too many things?
-          update.run()
-          return self.run(update)
         if self.message_id:
           delete(self.message_id)
           self.message_id = None

@@ -15,8 +15,13 @@ async def main():
   task = tasks.get_next()
   await asyncio.sleep(task.get_seconds_to_start())
   # Boss location is updated 30 minutes before the event.
-  # Runs update before sending detailed boss notification.
-  follow_up_task = await task.run(update) if task is boss else await task.run()
+  # Run update if the last update time is older than 30 minutes before boss event.
+  if (task is boss and 
+      boss.get_next()['type'] == 'post' and
+      update.get_last_time() < boss.get_next()['runtime']):
+      update.run()
+      continue
+  follow_up_task = await task.run()
 
 
 
