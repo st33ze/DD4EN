@@ -171,8 +171,8 @@ class Boss(Event):
         if inc_event is not event and inc_event['type'] == 'post':
           template['footer'] = {
             'text': (
-              f'Next boss {event["name"]} is expected to spawn on '
-              f'{event["time"].strftime("%A %H:%M")}'
+              f'Next boss {inc_event["name"]} is expected to spawn on '
+              f'{inc_event["time"].strftime("%A %H:%M")}'
             )
           }
     return Embed.from_dict(template)
