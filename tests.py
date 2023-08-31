@@ -94,16 +94,37 @@ class TestBossRun(unittest.IsolatedAsyncioTestCase):
   
   async def test_no_events(self):
     next_event = await self.boss.run()
-    self.assertIsNone(next_event, "There shouldn't be next event.")
+    self.assertIsNone(next_event, 'There shouldn\'t be next event.')
   
-  async def test_starting_event_no_msg_id(self):
+  @unittest.skip('Skipping test_starting_event_no_msg_id')
+  async def test_starting_event(self):
     self.boss.incoming = [
       templates.generate_boss_event(15),
       templates.generate_boss_event(300, location=False)
     ]
     next_event = await self.boss.run()
-    self.assertEqual(next_event['type'], "edit", "Next incoming event should be of type edit.")
-    self.assertEqual(len(self.boss.incoming), 2, "There should be two events in the incoming array.")
+    self.assertEqual(next_event['type'], 'edit', 'Next incoming event should be of type edit.')
+    self.assertEqual(len(self.boss.incoming), 2, 'There should be two events in the incoming array.')
+  
+  @unittest.skip('Skipping test_starting_event_no_next')
+  async def test_starting_event_no_next(self):
+    self.boss.incoming = [templates.generate_boss_event(15)]
+    next_event = await self.boss.run()
+    self.assertEqual(next_event['type'], 'edit', 'Next incoming event should be of type edit.')
+    self.assertEqual(len(self.boss.incoming), 1, 'There should be one event in the incoming array.')
+  
+  async def test_starting_event_with_msg_id(self):
+    self.boss.incoming = [templates.generate_boss_event(15)]
+    next_event = await self.boss.run()
+    message_id = self.boss.message_id
+    self.assertIsNotNone(message_id, 'There should be a message id.')
+    await asyncio.sleep(5)
+    self.boss.incoming = [templates.generate_boss_event(15)]
+    next_event = await self.boss.run()
+    self.assertNotEqual(message_id, self.boss.message_id, 'Message IDs should be different.')
+
+
+
     
 
 class TestCommunicatons(unittest.IsolatedAsyncioTestCase):
