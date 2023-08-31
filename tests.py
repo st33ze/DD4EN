@@ -98,8 +98,8 @@ class TestBossRun(unittest.IsolatedAsyncioTestCase):
       templates.generate_boss_event(300, location=False)
     ]
     next_event = await self.boss.run()
-    self.assertEqual(next_event, self.boss.incoming[1],
-                     "Next event should be the same as second event in incoming array.")
+    self.assertEqual(next_event['type'], "edit", "Next incoming event should be of type edit.")
+    self.assertEqual(len(self.boss.incoming), 2, "There should be two events in the incoming array.")
     
 
 class TestCommunicatons(unittest.IsolatedAsyncioTestCase):
