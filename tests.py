@@ -84,16 +84,23 @@ class TestBoss(unittest.TestCase):
       'Two relevant timers: Second timer doesn\'t match!')
 
 
-class TestBossAsync(unittest.IsolatedAsyncioTestCase):
+class TestBossRun(unittest.IsolatedAsyncioTestCase):
   def setUp(self):
     self.boss = Boss()
   
-  async def test_run_no_events(self):
+  async def test_no_events(self):
     next_event = await self.boss.run()
     self.assertIsNone(next_event, "There shouldn't be next event.")
   
-  # async def test_run_starting_event_no_message_id(self):
-
+  async def test_starting_event_no_msg_id(self):
+    self.boss.incoming = [
+      templates.generate_boss_event(15),
+      templates.generate_boss_event(300, location=False)
+    ]
+    next_event = await self.boss.run()
+    self.assertEqual(next_event, self.boss.incoming[1],
+                     "Next event should be the same as second event in incoming array.")
+    
 
 class TestCommunicatons(unittest.IsolatedAsyncioTestCase):
   def setUp(self):
