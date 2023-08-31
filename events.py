@@ -205,7 +205,7 @@ class Boss(Event):
         self.incoming.pop(0)
         self.add_event({
           'type': 'edit',
-          'runtime': datetime.now + timedelta(minutes=30)
+          'runtime': datetime.now() + timedelta(minutes=30)
         })
       elif not self.message_id:
         embed = self.create_embed(self.create_edit_event(event))
