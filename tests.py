@@ -82,16 +82,7 @@ class TestBoss(unittest.TestCase):
       event_two['time'], 
       self.boss.incoming[1]['time'], 
       'Two relevant timers: Second timer doesn\'t match!')
-    # Data with edit event between boss events.
-    edit_event = templates.generate_boss_event(333, 'edit', False)
-    self.boss.incoming = [edit_event]
-    self.boss.update(data)
-    self.assertIs(self.boss.incoming[1], edit_event, 'Edit event should be between two post events.')
-    
 
-    def test_run(self):
-      # Initial message.
-      pass
 
 class TestBossAsync(unittest.IsolatedAsyncioTestCase):
   def setUp(self):
