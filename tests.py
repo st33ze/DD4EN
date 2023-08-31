@@ -28,6 +28,10 @@ class TestBoss(unittest.TestCase):
     event = self.boss.incoming[0]
     embed = self.boss.create_embed(event)
     self.assertIsNotNone(embed.footer.text, 'With next expected boss: There should be a footer text.')
+    self.assertEqual(embed.footer.text,
+                     (f'Next boss {self.boss.incoming[1]["name"]} is expected to spawn on '
+                     f'{self.boss.incoming[1]["time"].strftime("%A %H:%M")}'),
+                     'Footer texts don\'t match')
     # Without next expected boss.
     event = templates.generate_boss_event(55)
     self.boss.incoming = [event]
