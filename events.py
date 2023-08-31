@@ -108,8 +108,7 @@ class Boss(Event):
           'time': datetime.fromtimestamp(wb_data['nextExpected'])
         }
       ]
-      # Delete old post events if there are any in self.incoming.
-      self.incoming = [event for event in self.incoming if event['type'] != 'post'] # self.incoming = [] ?
+      self.incoming = []
       for event in events:
         if event['time'] > datetime.now():
           event['type'] = 'post'
