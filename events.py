@@ -193,14 +193,13 @@ class Boss(Event):
     '''
     event = self.get_next()
     if not event: return
-    THUMBNAIL = File('img/boss.png', filename='boss.png')
     if event['type'] == 'post':
       if event['time'] - datetime.now() < timedelta(minutes=29):
         if self.message_id:
           await delete(self.message_id)
           self.message_id = None
         embed = self.create_embed(event)
-        self.message_id = await post(embed, THUMBNAIL)
+        self.message_id = await post(embed, File('img/boss.png', filename='boss.png'))
         self.incoming.pop(0)
         self.add_event({
           'type': 'edit',
@@ -208,7 +207,7 @@ class Boss(Event):
         })
       elif not self.message_id:
         embed = self.create_embed(self.create_edit_event(event))
-        self.message_id = await post(embed, THUMBNAIL)
+        self.message_id = await post(embed, File('img/boss.png', filename='boss.png'))
     elif event['type'] == 'edit':
       self.incoming.pop(0)
       event = self.get_next()
