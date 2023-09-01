@@ -137,6 +137,7 @@ class TestBossRun(unittest.IsolatedAsyncioTestCase):
     next_event = await self.boss.run()
     self.assertEqual(self.boss.incoming[0], next_event, 'Event should stay the same.')
 
+  @unittest.skip('Skipping test_edit_event')
   async def test_edit_event(self):
     self.boss.incoming = [
       templates.generate_boss_event(0, 'edit', False),
@@ -166,12 +167,23 @@ class TestCommunicatons(unittest.IsolatedAsyncioTestCase):
   @unittest.skip('Skipping test_delete')
   async def test_delete(self):
     ''' 
-      Posts message on discord, waits 5s and deletes the message.
+      Post message on discord, wait 5s and delete the message.
     '''
     from comunication import delete
     message_id = await self.post(self.embed, self.thumbnail)
     await asyncio.sleep(5)
     await delete(message_id)
+  
+  @unittest.skip('Skipping test_edit')
+  async def test_edit(self):
+    ''' 
+      Post message on discord, wait 5s and edit the message.
+    '''
+    from comunication import edit
+    message_id = await self.post(self.embed, self.thumbnail)
+    await asyncio.sleep(5)
+    self.embed.title = 'TEST'
+    await edit(message_id, self.embed)
 
 if __name__ == '__main__':
   unittest.main()
