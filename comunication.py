@@ -50,3 +50,9 @@ async def delete(message_id):
     webhook = Webhook.from_url(CONFIG['WEBHOOK_URL'], session=session)
     message = await webhook.fetch_message(message_id)
     await message.delete()
+
+async def edit(message_id, embed):
+  async with aiohttp.ClientSession() as session:
+    webhook = Webhook.from_url(CONFIG['WEBHOOK_URL'], session=session)
+    message = await webhook.fetch_message(message_id)
+    await message.edit(embed=embed)
