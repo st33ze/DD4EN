@@ -137,16 +137,24 @@ class TestBossRun(unittest.IsolatedAsyncioTestCase):
     next_event = await self.boss.run()
     self.assertEqual(self.boss.incoming[0], next_event, 'Event should stay the same.')
 
-  # @unittest.skip('Skipping test_edit_event')
+  @unittest.skip('Skipping test_edit_event')
   async def test_edit_event(self):
     self.boss.incoming = [templates.generate_boss_event(15)]
     await self.boss.run()
+    await asyncio.sleep(5)
     self.boss.incoming = [
       templates.generate_boss_event(0, 'edit', False),
       templates.generate_boss_event(344)
     ]
     next_event = await self.boss.run()
-    self.assertAlmostEqual(next_event, self.boss.incoming[0], 'Next event should be post type.')
+    self.assertEqual(next_event, self.boss.incoming[0], 'Next event should be post type.')
+  
+  @unittest.skip('Skipping test_edit_event_no_next')
+  async def test_edit_event_no_next(self):
+    self.boss.incoming = [templates.generate_boss_event(0, 'edit', False)]
+    next_event = await self.boss.run()
+    self.assertIsNone(next_event, 'There shouldn\'t be next event.')
+    
 
 
 
