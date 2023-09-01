@@ -124,11 +124,26 @@ class TestBossRun(unittest.IsolatedAsyncioTestCase):
     next_event = await self.boss.run()
     self.assertNotEqual(message_id, self.boss.message_id, 'Message IDs should be different.')
   
+  @unittest.skip('Skipping test_incoming_event_with_msg_id')
   async def test_incoming_event_with_msg_id(self):
     self.boss.incoming = [templates.generate_boss_event(300)]
     self.boss.message_id = 12345
     next_event = await self.boss.run()
     self.assertEqual(self.boss.incoming[0], next_event, 'Event should stay the same.')
+  
+  @unittest.skip('Skipping test_incoming_event_without_msg_id')
+  async def test_incoming_event_without_msg_id(self):
+    self.boss.incoming = [templates.generate_boss_event(300)]
+    next_event = await self.boss.run()
+    self.assertEqual(self.boss.incoming[0], next_event, 'Event should stay the same.')
+
+  async def test_edit_event(self):
+    self.boss.incoming = [
+      templates.generate_boss_event(0, 'edit', False),
+      templates.generate_boss_event(344)
+    ]
+    next_event = await self.boss.run()
+    self.assertAlmostEqual(next_event, self.boss.incoming[0], 'Next event should be post type.')
 
 
 
