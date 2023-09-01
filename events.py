@@ -1,7 +1,7 @@
 # Data process module.
 from discord import Embed, File
 from datetime import datetime, timedelta
-from comunication import get_data, post, delete
+from comunication import get_data, post, delete, edit
 from templates import d4armory_data
 
 
@@ -212,8 +212,8 @@ class Boss(Event):
       self.incoming.pop(0)
       event = self.get_next()
       if not event: return
-      embed = self.create_embed(self.create_edit_event())
-      await edit(embed)
+      embed = self.create_embed(self.create_edit_event(event))
+      await edit(self.message_id, embed)
     return self.get_next()
 
 
