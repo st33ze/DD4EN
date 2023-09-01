@@ -156,10 +156,6 @@ class TestBossRun(unittest.IsolatedAsyncioTestCase):
     self.assertIsNone(next_event, 'There shouldn\'t be next event.')
     
 
-
-
-    
-
 class TestCommunicatons(unittest.IsolatedAsyncioTestCase):
   def setUp(self):
     from comunication import post
@@ -194,6 +190,7 @@ class TestCommunicatons(unittest.IsolatedAsyncioTestCase):
     await asyncio.sleep(5)
     self.embed.title = 'TEST'
     await edit(message_id, self.embed)
+
 
 if __name__ == '__main__':
   unittest.main()

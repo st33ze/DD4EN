@@ -215,15 +215,3 @@ class Boss(Event):
       embed = self.create_embed(self.create_edit_event(event))
       await edit(self.message_id, embed)
     return self.get_next()
-
-
-
-
-
-        
-
-
-
-    
-
-
